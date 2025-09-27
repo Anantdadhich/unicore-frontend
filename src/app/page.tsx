@@ -1,103 +1,239 @@
-import Image from "next/image";
+"use client"
+
+import { useState, useEffect } from "react"
+import { ConnectButton } from "@rainbow-me/rainbowkit"
+import { useAccount } from "wagmi"
+import { motion } from "framer-motion"
+import { Zap, Shield, Users, ArrowRight } from "lucide-react"
+import SwapInterface from "@/components/SwapInterface"
+import ChatAssistant from "@/components/ChatAssistant"
+import SolverDashboard from "@/components/SolverDashboard"
+import { SwapIntent, SwapRoute } from "@/lib/types"
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const { address, isConnected } = useAccount()
+  const [activeTab, setActiveTab] = useState<"swap" | "solver">("swap")
+  const [routes, setRoutes] = useState<SwapRoute[]>([])
+  const [isLoading, setIsLoading] = useState(false)
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const handleSwapIntent = async (intent: SwapIntent) => {
+    setIsLoading(true)
+    try {
+      // Create swap intent
+      const intentResponse = await fetch("/api/swap-intents", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(intent),
+      })
+
+      if (intentResponse.ok) {
+        // Get optimized routes
+        const routesResponse = await fetch("/api/routes/optimize", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...intent,
+            includePrivacy: true,
+          }),
+        })
+
+        if (routesResponse.ok) {
+          const routesData = await routesResponse.json()
+          setRoutes(routesData.routes)
+        }
+      }
+    } catch (error) {
+      console.error("Swap intent creation failed:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleChatSwapIntent = (intent: SwapIntent) => {
+    handleSwapIntent(intent)
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      {/* Header */}
+      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+                <Zap className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">UniCore</h1>
+                <p className="text-xs text-gray-600">Cross-Chain DeFi Protocol</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <ConnectButton />
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+      </header>
+
+      {/* Hero Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="text-4xl sm:text-6xl font-bold text-gray-900 mb-6">
+              AI-Powered
+              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                {" "}Cross-Chain{" "}
+              </span>
+              Swaps
+            </h2>
+            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+              Experience the future of DeFi with zero-knowledge privacy, intelligent route optimization, 
+              and seamless cross-chain liquidity aggregation.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12"
+          >
+            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-gray-200">
+              <Shield className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">ZK Privacy</h3>
+              <p className="text-gray-600 text-sm">
+                Protect your trading patterns with zero-knowledge proofs and privacy-preserving swaps.
+              </p>
+            </div>
+            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-gray-200">
+              <Zap className="w-12 h-12 text-purple-600 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">AI Optimization</h3>
+              <p className="text-gray-600 text-sm">
+                Intelligent route finding across multiple chains for optimal execution and minimal slippage.
+              </p>
+            </div>
+            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-gray-200">
+              <Users className="w-12 h-12 text-green-600 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Solver Network</h3>
+              <p className="text-gray-600 text-sm">
+                Decentralized solver network providing liquidity and execution across all major chains.
+              </p>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Main Content */}
+      <section className="py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Tab Navigation */}
+          <div className="flex justify-center mb-8">
+            <div className="bg-white rounded-xl p-1 shadow-lg border border-gray-200">
+              <button
+                onClick={() => setActiveTab("swap")}
+                className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+                  activeTab === "swap"
+                    ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                Swap Interface
+              </button>
+              <button
+                onClick={() => setActiveTab("solver")}
+                className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+                  activeTab === "solver"
+                    ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                Solver Dashboard
+              </button>
+            </div>
+          </div>
+
+          {/* Tab Content */}
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {activeTab === "swap" ? (
+              <div className="flex justify-center">
+                <SwapInterface
+                  onSwapIntent={handleSwapIntent}
+                  routes={routes}
+                  isLoading={isLoading}
+                />
+              </div>
+            ) : (
+              <SolverDashboard solverAddress={isConnected ? address : undefined} />
+            )}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Chat Assistant */}
+      <ChatAssistant onSwapIntentDetected={handleChatSwapIntent} />
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                  <Zap className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-xl font-bold">UniCore</span>
+              </div>
+              <p className="text-gray-400 text-sm">
+                The future of cross-chain DeFi with AI-powered optimization and ZK privacy.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-4">Protocol</h3>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li>Swap Intents</li>
+                <li>Route Optimization</li>
+                <li>ZK Privacy</li>
+                <li>Solver Network</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-4">Resources</h3>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li>Documentation</li>
+                <li>API Reference</li>
+                <li>GitHub</li>
+                <li>Discord</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-4">Support</h3>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li>Help Center</li>
+                <li>Contact Us</li>
+                <li>Bug Reports</li>
+                <li>Feature Requests</li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
+            <p>&copy; 2024 UniCore Protocol. All rights reserved.</p>
+          </div>
+        </div>
       </footer>
     </div>
-  );
+  )
 }
