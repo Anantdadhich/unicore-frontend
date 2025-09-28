@@ -11,7 +11,7 @@ const geistSans = Raleway({
   variable: "--font-suse",
 });
 
-export const metadata: Metadata = {˝j
+export const metadata: Metadata = {
   title: "UniCore Protocol - AI-Powered Cross-Chain DeFi",
   description:
     "Experience the future of DeFi with zero-knowledge privacy, intelligent route optimization, and seamless cross-chain liquidity aggregation.",

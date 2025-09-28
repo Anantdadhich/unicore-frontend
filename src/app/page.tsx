@@ -73,7 +73,7 @@ export default function Home() {
   <Link href="/swap" className="hover:text-gray-900 transition-colors">
     Protocol
   </Link>
-  <a href="/docs" className="hover:text-gray-900 transition-colors">
+  <a href="/solver" className="hover:text-gray-900 transition-colors">
     Documentation
   </a>
 
