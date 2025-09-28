@@ -1,14 +1,23 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { useAccount } from "wagmi"
-import { motion } from "framer-motion"
-import { Zap, Shield, Users, ArrowRight } from "lucide-react"
+import {
+  Zap,
+  Shield,
+  TrendingUp,
+  Layers,
+  Globe,
+ 
+  BarChart3,
+  Users,
+} from "lucide-react"
 import SwapInterface from "@/components/SwapInterface"
 import ChatAssistant from "@/components/ChatAssistant"
 import SolverDashboard from "@/components/SolverDashboard"
-import { SwapIntent, SwapRoute } from "@/lib/types"
+import type { SwapIntent, SwapRoute } from "@/lib/types"
+import Link from "next/link"
 
 export default function Home() {
   const { address, isConnected } = useAccount()
@@ -19,28 +28,17 @@ export default function Home() {
   const handleSwapIntent = async (intent: SwapIntent) => {
     setIsLoading(true)
     try {
-      // Create swap intent
       const intentResponse = await fetch("/api/swap-intents", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(intent),
       })
-
       if (intentResponse.ok) {
-        // Get optimized routes
         const routesResponse = await fetch("/api/routes/optimize", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            ...intent,
-            includePrivacy: true,
-          }),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...intent, includePrivacy: true }),
         })
-
         if (routesResponse.ok) {
           const routesData = await routesResponse.json()
           setRoutes(routesData.routes)
@@ -58,179 +56,198 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
-                <Zap className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">UniCore</h1>
-                <p className="text-xs text-gray-600">Cross-Chain DeFi Protocol</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <ConnectButton />
+    <div className="min-h-screen bg-[#F8F9FA] text-gray-900 font-sans">
+      {/* Clean Header */}
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-gray-200 px-6 py-4">
+        <div className="flex justify-between items-center max-w-7xl mx-auto">
+          <div className="flex items-center space-x-3">
+     
+            <div>
+              <h1 className="text-xl font-bold text-gray-900">UniCore</h1>
+              <p className="text-xs text-gray-500 uppercase tracking-wide">Cross-Chain DeFi</p>
             </div>
           </div>
+          
+          
+<nav className="hidden md:flex space-x-8 text-gray-600 font-medium">
+  <Link href="/swap" className="hover:text-gray-900 transition-colors">
+    Protocol
+  </Link>
+  <a href="/docs" className="hover:text-gray-900 transition-colors">
+    Documentation
+  </a>
+
+</nav>
+
+          
+          <ConnectButton chainStatus="icon" showBalance={false} />
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="text-4xl sm:text-6xl font-bold text-gray-900 mb-6">
-              AI-Powered
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                {" "}Cross-Chain{" "}
-              </span>
-              Swaps
-            </h2>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              Experience the future of DeFi with zero-knowledge privacy, intelligent route optimization, 
-              and seamless cross-chain liquidity aggregation.
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12"
-          >
-            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-gray-200">
-              <Shield className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">ZK Privacy</h3>
-              <p className="text-gray-600 text-sm">
-                Protect your trading patterns with zero-knowledge proofs and privacy-preserving swaps.
-              </p>
-            </div>
-            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-gray-200">
-              <Zap className="w-12 h-12 text-purple-600 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">AI Optimization</h3>
-              <p className="text-gray-600 text-sm">
-                Intelligent route finding across multiple chains for optimal execution and minimal slippage.
-              </p>
-            </div>
-            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-gray-200">
-              <Users className="w-12 h-12 text-green-600 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Solver Network</h3>
-              <p className="text-gray-600 text-sm">
-                Decentralized solver network providing liquidity and execution across all major chains.
-              </p>
-            </div>
-          </motion.div>
+      {/* Hero Section - Simplified */}
+      <section className="py-16 px-6 max-w-6xl mx-auto text-center">
+        <div className="mb-6">
+          <span className="inline-flex items-center px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700 font-medium">
+            AI-Powered Cross-Chain Protocol
+          </span>
         </div>
-      </section>
 
-      {/* Main Content */}
-      <section className="py-8 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          {/* Tab Navigation */}
-          <div className="flex justify-center mb-8">
-            <div className="bg-white rounded-xl p-1 shadow-lg border border-gray-200">
-              <button
-                onClick={() => setActiveTab("swap")}
-                className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
-                  activeTab === "swap"
-                    ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
-                    : "text-gray-600 hover:text-gray-900"
-                }`}
-              >
-                Swap Interface
-              </button>
-              <button
-                onClick={() => setActiveTab("solver")}
-                className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
-                  activeTab === "solver"
-                    ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
-                    : "text-gray-600 hover:text-gray-900"
-                }`}
-              >
-                Solver Dashboard
-              </button>
-            </div>
-          </div>
+        <h2 className="text-4xl md:text-6xl font-bold mb-6 text-gray-900 leading-tight">
+          Hunt for Digital Liquidity,<br />
+          <span className="text-gray-600">Cultivate Your DeFi Portfolio</span>
+        </h2>
 
-          {/* Tab Content */}
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {activeTab === "swap" ? (
-              <div className="flex justify-center">
-                <SwapInterface
-                  onSwapIntent={handleSwapIntent}
-                  routes={routes}
-                  isLoading={isLoading}
-                />
+        <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-10">
+          Traders and institutions looking to maximize their earnings through strategic 
+          cross-chain swaps with zero-knowledge privacy and AI optimization.
+        </p>
+
+        <div className="flex flex-col sm:flex-row justify-center gap-4 mb-16">
+  
+
+<Link href="/swap">
+  <button className="px-6 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors">
+    Launch Protocol
+  </button>
+</Link>
+
+<Link href="/solver">
+  <button className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+    Open Swap Interface
+  </button>
+</Link>
+
+        </div>
+
+        {/* Stats Grid - Clean */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
+          {[
+            { value: "$2.4B+", label: "Total Volume", icon: BarChart3 },
+            { value: "50+", label: "Blockchains", icon: Layers },
+            { value: "100K+", label: "Active Users", icon: Users },
+            { value: "99.9%", label: "Uptime", icon: Shield },
+          ].map(({ value, label, icon: Icon }) => (
+            <div key={label} className="text-center">
+              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <Icon className="w-6 h-6 text-gray-700" />
               </div>
-            ) : (
-              <SolverDashboard solverAddress={isConnected ? address : undefined} />
-            )}
-          </motion.div>
+              <div className="text-2xl font-bold text-gray-900 mb-1">{value}</div>
+              <div className="text-sm text-gray-600">{label}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Feature Cards - Minimal */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[
+            {
+              icon: Shield,
+              title: "Zero-Knowledge Privacy",
+              description: "Military-grade cryptographic protection using zk-SNARKs for complete transaction privacy.",
+              highlight: "Private & Secure",
+            },
+            {
+              icon: TrendingUp,
+              title: "AI Route Optimization",
+              description: "Machine learning algorithms find optimal execution paths with minimal slippage across chains.",
+              highlight: "Smart Execution",
+            },
+            {
+              icon: Globe,
+              title: "Cross-Chain Network",
+              description: "Decentralized solver network providing deep liquidity across all major blockchains.",
+              highlight: "Universal Access",
+            },
+          ].map(({ icon: Icon, title, description, highlight }) => (
+            <div key={title} className="bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-sm transition-shadow">
+              <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mb-4">
+                <Icon className="w-6 h-6 text-gray-700" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">{title}</h3>
+              <p className="text-gray-600 leading-relaxed mb-4">{description}</p>
+              <div className="flex items-center text-sm font-medium text-gray-700">
+                <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                {highlight}
+              </div>
+            </div>
+          ))}
         </div>
       </section>
+
 
       {/* Chat Assistant */}
       <ChatAssistant onSwapIntentDetected={handleChatSwapIntent} />
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
+      {/* Clean Footer */}
+      <footer className="bg-white border-t border-gray-200 py-12 px-6 mt-20">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-12 mb-8">
+            <div className="md:col-span-2">
               <div className="flex items-center space-x-3 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-white" />
+                <div className="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center">
+                  <Zap className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-xl font-bold">UniCore</span>
+                <div>
+                  <span className="text-xl font-bold text-gray-900">UniCore</span>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide">Protocol</p>
+                </div>
               </div>
-              <p className="text-gray-400 text-sm">
-                The future of cross-chain DeFi with AI-powered optimization and ZK privacy.
+              <p className="text-gray-600 leading-relaxed max-w-md mb-6">
+                The future of cross-chain DeFi with AI optimization, 
+                zero-knowledge privacy, and universal blockchain connectivity.
               </p>
+              <div className="flex space-x-3">
+                {["Twitter", "Discord", "GitHub"].map((platform) => (
+                  <a
+                    key={platform}
+                    href="#"
+                    className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors"
+                    aria-label={platform}
+                  >
+                    {platform.slice(0, 2)}
+                  </a>
+                ))}
+              </div>
             </div>
-            <div>
-              <h3 className="font-semibold mb-4">Protocol</h3>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li>Swap Intents</li>
-                <li>Route Optimization</li>
-                <li>ZK Privacy</li>
-                <li>Solver Network</li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-4">Resources</h3>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li>Documentation</li>
-                <li>API Reference</li>
-                <li>GitHub</li>
-                <li>Discord</li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-4">Support</h3>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li>Help Center</li>
-                <li>Contact Us</li>
-                <li>Bug Reports</li>
-                <li>Feature Requests</li>
-              </ul>
-            </div>
+
+            {[
+              {
+                title: "Protocol",
+                links: ["Swap Intents", "Route Optimization", "ZK Privacy", "Solver Network"],
+              },
+              {
+                title: "Developers",
+                links: ["Documentation", "API Reference", "SDK", "GitHub"],
+              },
+              {
+                title: "Community",
+                links: ["Discord", "Twitter", "Telegram", "Blog"],
+              },
+            ].map(({ title, links }) => (
+              <div key={title}>
+                <h3 className="font-semibold text-gray-900 mb-4">{title}</h3>
+                <ul className="space-y-3">
+                  {links.map((item) => (
+                    <li key={item}>
+                      <a href="#" className="text-gray-600 hover:text-gray-900 transition-colors">
+                        {item}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-            <p>&copy; 2024 UniCore Protocol. All rights reserved.</p>
+
+          <div className="border-t border-gray-200 pt-6 flex flex-col md:flex-row justify-between items-center text-sm text-gray-600">
+            <p>© 2025 UniCore Protocol. All rights reserved.</p>
+            <div className="flex space-x-6 mt-4 md:mt-0">
+              {["Privacy Policy", "Terms of Service", "Cookie Policy"].map((item) => (
+                <a key={item} href="#" className="hover:text-gray-900 transition-colors">
+                  {item}
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </footer>

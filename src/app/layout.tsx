@@ -1,23 +1,20 @@
-
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Raleway } from "next/font/google";
 import "./globals.css";
-import '@rainbow-me/rainbowkit/styles.css';
-import { Providers } from './providers';
+import "@rainbow-me/rainbowkit/styles.css";
+import { Providers } from "./providers";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Import font with variable
+const geistSans = Raleway({
+  weight: ["400"],
   subsets: ["latin"],
+  variable: "--font-suse",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export const metadata: Metadata = {
+export const metadata: Metadata = {˝j
   title: "UniCore Protocol - AI-Powered Cross-Chain DeFi",
-  description: "Experience the future of DeFi with zero-knowledge privacy, intelligent route optimization, and seamless cross-chain liquidity aggregation.",
+  description:
+    "Experience the future of DeFi with zero-knowledge privacy, intelligent route optimization, and seamless cross-chain liquidity aggregation.",
 };
 
 export default function RootLayout({
@@ -27,12 +24,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <Providers>
-          {children}
-        </Providers>
+      <body className={`${geistSans.variable} antialiased`}>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
